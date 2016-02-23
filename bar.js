@@ -30,8 +30,11 @@ var barSvg = d3.select("#pieContainer").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+var currencyFormat = d3.format('$,');
+
 
 function drawBarChart(stateId){
+
     d3.csv("oaadata.csv", function(error, data){
         var nest = d3.nest()
             .key(function(d){return d.id;})
@@ -40,9 +43,20 @@ function drawBarChart(stateId){
         var selectedData = _.find(nest, function(x){return x.key == stateId});
         var layers = d3.layout.stack()(categories.map(function(c){
             return selectedData.values.map(function(d){
-                return {x: d.Year, y: parseInt(d[c])};
+                return {x: d.Year, y: parseInt(d[c]), category: c};
             });
         }));
+
+        barSvg.append("text")
+            .attr("class", "barChartTitle")
+            .attr("x", (barWidth / 2))
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .text(function(d){
+                return(selectedData.values[0].State + " OAA Funding 2006-2014")
+            });
+
 
         xbar.domain(layers[0].map(function(d){return d.x}));
         ybar.domain([0, 125000000]);
@@ -61,7 +75,15 @@ function drawBarChart(stateId){
             .attr("x", function(d){return xbar(d.x);})
             .attr("y", function(d){return ybar(d.y + d.y0);})
             .attr("height", function(d){return ybar(d.y0) - ybar(d.y + d.y0)})
-            .attr("width", xbar.rangeBand() - 1);
+            .attr("width", xbar.rangeBand() - 1)
+            .on("mouseover", function(d){
+                d3.select(this).classed("hoverBar", true)
+            }).on("mouseout", function(d){
+                d3.select(this).classed("hoverBar", false);
+            }).append("title")
+                .attr("class", "grpTitle")
+                .text(function(d){return d.category + ": " + currencyFormat(d.y);});
+
 
         barSvg.append("g")
             .attr("class", "x axis")
@@ -79,14 +101,15 @@ function drawBarChart(stateId){
             .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
         legend.append("rect")
-            .attr("x", barWidth + 100)
+            .attr("x", barWidth + 130)
+            .attr("y", 91)
             .attr("width", 18)
             .attr("height", 18)
             .style("fill", color);
 
         legend.append("text")
-            .attr("x", barWidth + 94)
-            .attr("y", 9)
+            .attr("x", barWidth + 124)
+            .attr("y", 100)
             .attr("dy", ".35em")
             .style("text-anchor", "end")
             .text(function(d) { return d; });
@@ -103,9 +126,14 @@ function updateBarChart(stateId){
         var selectedData = _.find(nest, function(x){return x.key == stateId});
         var layers = d3.layout.stack()(categories.map(function(c){
             return selectedData.values.map(function(d){
-                return {x: d.Year, y: parseInt(d[c])};
+                return {x: d.Year, y: parseInt(d[c]), category: c};
             });
         }));
+
+        barSvg.select(".barChartTitle")
+            .text(function(d){
+                return(selectedData.values[0].State + " OAA Funding 2006-2014")
+            });
         //
         xbar.domain(layers[0].map(function(d){return d.x}));
         ybar.domain([0, 125000000]);
@@ -120,7 +148,9 @@ function updateBarChart(stateId){
             .attr("x", function(d){return xbar(d.x);})
             .attr("y", function(d){return ybar(d.y + d.y0);})
             .attr("height", function(d){return ybar(d.y0) - ybar(d.y + d.y0)})
-            .attr("width", xbar.rangeBand() - 1);
+            .attr("width", xbar.rangeBand() - 1)
+            .select("title").text(function(d){return d.category + ": " + currencyFormat(d.y);});
+
 
 
     });

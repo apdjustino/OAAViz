@@ -3,7 +3,7 @@
  */
 var margin = {top: 20, right: 20, bottom: 30, left: 80};
 var lineWidth = 800 - margin.left - margin.right;
-var lineHeight = 700 - margin.top - margin.bottom;
+var lineHeight = 450 - margin.top - margin.bottom;
 
 
 
@@ -103,10 +103,42 @@ function drawLineChart(stateId){
             .attr("cy", function(d){return y(d.values[0]['pct_chng_title3']);})
             .attr("r", 5)
             .attr("class", function(d){ return "circle" + d.key + " circleFunding"})
-            .style("fill", "red")
+            .style("fill", "chocolate")
             .on("mouseover", function(d){d3.select(this).classed("mouseOverCircle",true)})
             .on("mouseout", function(d){d3.select(this).classed("mouseOverCircle",false)})
             .on("click", function(d){updatePieChart(d.values[0].id, d.key)});
+
+        var legend = lineSvg.append("g")
+            .attr("transform", "translate(150,410)");
+
+        legend.append("line")
+            .style("stroke", "steelblue")
+            .style("stroke-width", "4.5px")
+            .attr("x1",0)
+            .attr("y1",0)
+            .attr("x2",30)
+            .attr("y2",0);
+
+        legend.append("text")
+            .text("60+ Population")
+            .attr("x", 35)
+            .attr("y", 5);
+
+        var fundingLegend = lineSvg.append("g")
+            .attr("transform", "translate(350, 410)");
+
+        fundingLegend.append("line")
+            .style("stroke", "chocolate")
+            .style("stroke-width", "4.5px")
+            .attr("x1",0)
+            .attr("y1",0)
+            .attr("x2",30)
+            .attr("y2",0);
+
+        fundingLegend.append("text")
+            .text("OAA Funding")
+            .attr("x", 35)
+            .attr("y", 5)
 
     });
 

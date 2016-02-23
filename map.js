@@ -28,6 +28,7 @@ d3.json("us.json", function(error, us) {
         .data(topojson.feature(us, us.objects.states).features)
         .enter().append("path")
         .attr("class", "state")
+        .attr("id", function(d){return "id_" + d.id;})
         .attr("d", path)
         .on("click", function(d){
             var thisElement = this;
@@ -44,6 +45,8 @@ d3.json("us.json", function(error, us) {
         .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
         .attr("id", "state-borders")
         .attr("d", path);
+
+
 
     drawLineChart(8);
 });
