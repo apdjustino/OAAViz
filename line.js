@@ -93,7 +93,9 @@ function drawLineChart(stateId){
             .style("fill", "steelblue")
             .on("mouseover", function(d){d3.select(this).classed("mouseOverCircle",true)})
             .on("mouseout", function(d){d3.select(this).classed("mouseOverCircle",false)})
-            .on("click", function(d){updatePieChart(d.values[0].id, d.key)});
+            .on("click", function(d){updatePieChart(d.values[0].id, d.key)})
+            .append("title")
+            .text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
 
         lineSvg.selectAll(".circleFunding")
             .data(dataToDraw.values)
@@ -106,7 +108,9 @@ function drawLineChart(stateId){
             .style("fill", "chocolate")
             .on("mouseover", function(d){d3.select(this).classed("mouseOverCircle",true)})
             .on("mouseout", function(d){d3.select(this).classed("mouseOverCircle",false)})
-            .on("click", function(d){updatePieChart(d.values[0].id, d.key)});
+            .on("click", function(d){updatePieChart(d.values[0].id, d.key)})
+            .append("title")
+            .text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
 
         var legend = lineSvg.append("g")
             .attr("transform", "translate(150,410)");
@@ -180,13 +184,15 @@ function updateLineChart(stateId){
             .data(dataToDraw.values)
             .transition()
             .duration(500)
-            .attr("cy", function(d){return y(d.values[0]['pct_chng_pop60']);});
+            .attr("cy", function(d){return y(d.values[0]['pct_chng_pop60']);})
+            .select("title").text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
 
         transition.selectAll(".circleFunding")
             .data(dataToDraw.values)
             .transition()
             .duration(500)
             .attr("cy", function(d){return y(d.values[0]['pct_chng_title3']);})
+            .select("title").text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
 
 
 
