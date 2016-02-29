@@ -1,6 +1,7 @@
 /**
  * Created by jmartinez on 2/26/2016.
  */
+var scenario = "1";
 var projWidth = 772;
 
 var xproj = d3.scale.ordinal()
@@ -49,7 +50,7 @@ function drawProjChart(stateId, scenarioId){
 
         var layers = d3.layout.stack()(categories.map(function(c){
             return selectedData.map(function(d){
-                return {x: d.Year, y: parseInt(d[c]), category: c};
+                return {x: d.Year, y: parseInt(d[c]), category: c, scenario: d.scenario};
             });
         }));
 
@@ -60,12 +61,13 @@ function drawProjChart(stateId, scenarioId){
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
             .text(function(d){
-                return(selectedData[0].State + " OAA Funding 2006-2014")
+                console.log(d);
+                return(selectedData[0].State + ": " + selectedData[0].scenario)
             });
 
 
         xproj.domain(layers[0].map(function(d){return d.x}));
-        yproj.domain([0, 125000000]);
+        yproj.domain([0, 135000000]);
 
         var layer = projSvg.selectAll(".layer")
             .data(layers)
@@ -123,26 +125,34 @@ function drawProjChart(stateId, scenarioId){
     });
 }
 
-function updateProjChart(stateId){
+function updateProjChart(stateId, scenarioId){
     d3.csv("oaaprojections.csv", function(error, data){
         var nest = d3.nest()
             .key(function(d){return d.id;})
             .entries(data);
 
-        var selectedData = _.find(nest, function(x){return x.key == stateId});
+        var selectedState = _.find(nest, function(x){return x.key == stateId});
+        var selectedData = [];
+        selectedState.values.forEach(function(cv){
+            if(cv.scenarioId == scenarioId){
+                selectedData.push(cv);
+            }
+        });
+
         var layers = d3.layout.stack()(categories.map(function(c){
             return selectedData.map(function(d){
-                return {x: d.Year, y: parseInt(d[c]), category: c};
+                return {x: d.Year, y: parseInt(d[c]), category: c, scenario: d.scenario};
             });
         }));
 
         projSvg.select(".barChartTitle")
             .text(function(d){
-                return(selectedData[0].State + " OAA Funding 2006-2014")
+                console.log(d);
+                return(selectedData[0].State + ": " + selectedData[0].scenario)
             });
         //
         xproj.domain(layers[0].map(function(d){return d.x}));
-        yproj.domain([0, 125000000]);
+        yproj.domain([0, 135000000]);
 
         var layer = projSvg.selectAll(".layer")
             .data(layers);
@@ -162,4 +172,14 @@ function updateProjChart(stateId){
     });
 }
 
-drawProjChart(8, "1");
+drawProjChart(state, scenario);
+
+var links = document.getElementsByClassName("scenarioLink");
+for(var i=0; i<links.length; i++){
+    var link = links[i];
+    link.onclick = function(e){
+        e.preventDefault();
+        var scenarioId = e.target.id.split('-')[1];
+        updateProjChart(state, scenarioId);
+    }
+}

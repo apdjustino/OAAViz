@@ -1,6 +1,9 @@
 /**
  * Created by jmartinez on 2/19/2016.
  */
+
+var state = "8";
+
 var width = 672,
     height = 360,
     selected;
@@ -35,9 +38,12 @@ d3.json("us.json", function(error, us) {
             d3.selectAll(".state").classed("selected", function(d){
                 return (this === thisElement) ? true : false;
             });
+            state = d.id;
             updateLineChart(d.id);
             //updatePieChart(d.id, 2013);
             updateBarChart(d.id);
+
+            updateProjChart(d.id, scenario);
         });
 
 
@@ -48,7 +54,7 @@ d3.json("us.json", function(error, us) {
 
 
 
-    drawLineChart(8);
+    drawLineChart(state);
 });
 
 
