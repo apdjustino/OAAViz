@@ -71,3 +71,9 @@
     stroke:black;
     stroke-width: 1.5px;
 }
+
+#projContainer {
+    position:relative;
+    width:70%;
+    margin:auto;
+}

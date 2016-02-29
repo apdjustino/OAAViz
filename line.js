@@ -57,6 +57,17 @@ function drawLineChart(stateId){
         //x.domain([d3.time.format("%d-%b-%y").parse('01-Jan-04'), d3.time.format("%d-%b-%y").parse('01-Jan-14')]);
         y.domain([-0.10, 0.15]);
 
+        lineSvg.append("text")
+            .attr("class", "lineChartTitle")
+            .attr("x", (lineWidth / 2))
+            .attr("y", 10)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .text(function(d){
+                console.log(dataToDraw);
+                return dataToDraw.values[0].values[0].State + " Funding and Population Growth"
+            });
+
         lineSvg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
