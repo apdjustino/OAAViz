@@ -61,8 +61,7 @@ function drawProjChart(stateId, scenarioId){
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
             .text(function(d){
-                console.log(d);
-                return(selectedData[0].State + ": " + selectedData[0].scenario)
+                return(selectedData[0].State + ": OAA Funding Projection")
             });
 
 
@@ -100,7 +99,13 @@ function drawProjChart(stateId, scenarioId){
 
         projSvg.append("g")
             .attr("class", "y axis")
-            .call(yAxisProj);
+            .call(yAxisProj)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor","end")
+            .text("Dollars");
 
         var legend = projSvg.selectAll(".legend")
             .data(categories)
@@ -148,7 +153,7 @@ function updateProjChart(stateId, scenarioId){
         projSvg.select(".barChartTitle")
             .text(function(d){
                 console.log(d);
-                return(selectedData[0].State + ": " + selectedData[0].scenario)
+                return(selectedData[0].State + ": OAA Funding Projection")
             });
         //
         xproj.domain(layers[0].map(function(d){return d.x}));

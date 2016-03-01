@@ -92,7 +92,13 @@ function drawBarChart(stateId){
 
         barSvg.append("g")
             .attr("class", "y axis")
-            .call(yAxisBar);
+            .call(yAxisBar)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Dollars");
 
         var legend = barSvg.selectAll(".legend")
             .data(categories)

@@ -28,11 +28,11 @@ var yAxis = d3.svg.axis()
 
 var line = d3.svg.line()
     .x(function(d) { return x(d.key); })
-    .y(function(d) { return y(d.values[0]['pct_chng_pop60']); });
+    .y(function(d) { return y(d.values[0]['pop60']); });
 
 var fundingLine = d3.svg.line()
     .x(function(d){return x(d.key)})
-    .y(function(d){return y(d.values[0]['pct_chng_title3'])});
+    .y(function(d){return y(d.values[0]['Total Title III'])});
 
 var lineSvg = d3.select("#lineContainer").append("svg")
     .attr("width", lineWidth + margin.left + margin.right)
@@ -44,7 +44,7 @@ var lineSvg = d3.select("#lineContainer").append("svg")
 
 function drawLineChart(stateId){
 
-    d3.csv("oaadata.csv", function(error, data){
+    d3.csv("oaadata_pct.csv", function(error, data){
         var nest = d3.nest()
             .key(function(d){return d.id})
             .key(function(d){return d.Year})
@@ -55,7 +55,7 @@ function drawLineChart(stateId){
         var dataToDraw = _.find(nest, function(x){return x.key == stateId});
         x.domain(d3.extent(dataToDraw.values, function(d){return d.key}));
         //x.domain([d3.time.format("%d-%b-%y").parse('01-Jan-04'), d3.time.format("%d-%b-%y").parse('01-Jan-14')]);
-        y.domain([-0.10, 0.15]);
+        y.domain([0, 0.55]);
 
         lineSvg.append("text")
             .attr("class", "lineChartTitle")
@@ -64,8 +64,7 @@ function drawLineChart(stateId){
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
             .text(function(d){
-                console.log(dataToDraw);
-                return dataToDraw.values[0].values[0].State + " Funding and Population Growth"
+                return "Percent Change from 2006: Funding & Seniors 60+"
             });
 
         lineSvg.append("g")
@@ -81,7 +80,7 @@ function drawLineChart(stateId){
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text("Percent Change");
+            .text("Percent Change from 2006 Levels");
 
         lineSvg.append("path")
             .datum(dataToDraw.values)
@@ -98,7 +97,7 @@ function drawLineChart(stateId){
             .enter()
             .append("circle")
             .attr("cx", function(d){return x(d.key);})
-            .attr("cy", function(d){return y(d.values[0]['pct_chng_pop60']);})
+            .attr("cy", function(d){return y(d.values[0]['pop60']);})
             .attr("r", 5)
             .attr("class", function(d){ return "circle" + d.key + " circlePop"})
             .style("fill", "steelblue")
@@ -113,7 +112,7 @@ function drawLineChart(stateId){
             .enter()
             .append("circle")
             .attr("cx", function(d){return x(d.key);})
-            .attr("cy", function(d){return y(d.values[0]['pct_chng_title3']);})
+            .attr("cy", function(d){return y(d.values[0]['Total Title III']);})
             .attr("r", 5)
             .attr("class", function(d){ return "circle" + d.key + " circleFunding"})
             .style("fill", "chocolate")
@@ -135,7 +134,7 @@ function drawLineChart(stateId){
             .attr("y2",0);
 
         legend.append("text")
-            .text("60+ Population")
+            .text("OAA Funding")
             .attr("x", 35)
             .attr("y", 5);
 
@@ -151,7 +150,7 @@ function drawLineChart(stateId){
             .attr("y2",0);
 
         fundingLegend.append("text")
-            .text("OAA Funding")
+            .text("60+ Population")
             .attr("x", 35)
             .attr("y", 5)
 
@@ -160,7 +159,7 @@ function drawLineChart(stateId){
 }
 
 function updateLineChart(stateId){
-    d3.csv("oaadata.csv", function(error, data){
+    d3.csv("oaadata_pct.csv", function(error, data){
         var nest = d3.nest()
             .key(function(d){return d.id})
             .key(function(d){return d.Year})
@@ -171,7 +170,7 @@ function updateLineChart(stateId){
         var dataToDraw = _.find(nest, function(x){return x.key == stateId});
         x.domain(d3.extent(dataToDraw.values, function(d){return d.key}));
         //x.domain([d3.time.format("%d-%b-%y").parse('01-Jan-04'), d3.time.format("%d-%b-%y").parse('01-Jan-14')]);
-        y.domain([-0.10, 0.15]);
+        y.domain([0, 0.55]);
 
         var transition = d3.select('#lineContainer')
             .data(dataToDraw.values);
@@ -195,15 +194,15 @@ function updateLineChart(stateId){
             .data(dataToDraw.values)
             .transition()
             .duration(500)
-            .attr("cy", function(d){return y(d.values[0]['pct_chng_pop60']);})
-            .select("title").text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
+            .attr("cy", function(d){return y(d.values[0]['pop60']);})
+            .select("title").text(function(d){return yFormat(d.values[0]['pop60']);});
 
         transition.selectAll(".circleFunding")
             .data(dataToDraw.values)
             .transition()
             .duration(500)
-            .attr("cy", function(d){return y(d.values[0]['pct_chng_title3']);})
-            .select("title").text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
+            .attr("cy", function(d){return y(d.values[0]['Total Title III']);})
+            .select("title").text(function(d){return yFormat(d.values[0]['Total Title III']);});
 
 
 
