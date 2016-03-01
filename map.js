@@ -22,42 +22,56 @@ var svg = d3.select("#mapContainer").append("svg")
 
 var g = svg.append("g");
 
-d3.json("us.json", function(error, us) {
-    if (error) throw error;
+function drawMap(stateId){
+    d3.json("us.json", function(error, us) {
+        if (error) throw error;
 
-    g.append("g")
-        .attr("id", "states")
-        .selectAll("path")
-        .data(topojson.feature(us, us.objects.states).features)
-        .enter().append("path")
-        .attr("class", "state")
-        .attr("id", function(d){return "id_" + d.id;})
-        .attr("d", path)
-        .on("click", function(d){
-            var thisElement = this;
-            d3.selectAll(".state").classed("selected", function(d){
-                return (this === thisElement) ? true : false;
+        g.append("g")
+            .attr("id", "states")
+            .selectAll("path")
+            .data(topojson.feature(us, us.objects.states).features)
+            .enter().append("path")
+            .attr("class", "state")
+            .attr("class", function(d){
+                if(d.id == stateId){
+                    return "state selected"
+                }else{
+                    return "state"
+                }
+            })
+            .attr("id", function(d){return "id_" + d.id;})
+            .attr("d", path)
+            .on("click", function(d){
+                var thisElement = this;
+                d3.selectAll(".state").classed("selected", function(d){
+                    return (this === thisElement) ? true : false;
+                });
+                state = d.id;
+                updateLineChart(d.id);
+                //updatePieChart(d.id, 2013);
+                updateBarChart(d.id);
+
+                updateProjChart(d.id, scenario);
+
+                updateMealChart(d.id, scenario);
             });
-            state = d.id;
-            updateLineChart(d.id);
-            //updatePieChart(d.id, 2013);
-            updateBarChart(d.id);
-
-            updateProjChart(d.id, scenario);
-
-            updateMealChart(d.id, scenario);
-        });
 
 
-    g.append("path")
-        .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-        .attr("id", "state-borders")
-        .attr("d", path);
+        g.append("path")
+            .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+            .attr("id", "state-borders")
+            .attr("d", path);
 
 
 
-    drawLineChart(state);
-});
+        drawLineChart(state);
+    });
+}
+
+
+drawMap(state);
+
+
 
 
 
