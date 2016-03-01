@@ -1,7 +1,7 @@
 /**
  * Created by jmartinez on 2/26/2016.
  */
-var scenario = "1";
+var scenario = "4";
 var projWidth = 375;
 
 var xproj = d3.scale.ordinal()
@@ -185,6 +185,7 @@ for(var i=0; i<links.length; i++){
     link.onclick = function(e){
         e.preventDefault();
         var scenarioId = e.target.id.split('-')[1];
+        scenario = scenarioId;
         updateProjChart(state, scenarioId);
         updateMealChart(state, scenarioId);
     }

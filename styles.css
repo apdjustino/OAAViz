@@ -77,3 +77,15 @@
     width:100%;
     margin:auto;
 }
+
+#descriptionContainer{
+    position:relative;
+    top:55px;
+    padding:30px;
+}
+
+#pieContainer{
+    position:relative;
+    width:70%;
+    margin:auto;
+}

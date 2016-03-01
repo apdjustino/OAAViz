@@ -2,7 +2,7 @@
  * Created by jmartinez on 2/22/2016.
  */
 
-var barWidth = 375;
+var barWidth = 800;
 
 var xbar = d3.scale.ordinal()
     .rangeRoundBands([0, barWidth]);

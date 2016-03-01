@@ -6,6 +6,15 @@ var mealCategories = [
     {name:'Home Meals', cost:6.59}
 ];
 
+var scenarios = [
+    {id:1, desc:"Following the Seniors allocates the OAA funding based on the proportion of Seniors living in each State. States with growing populations will experience increased funding while States with shrinking populations will lose funding in the future."},
+    {id:2, desc:"The Current Senate Bill reformulates the Hold Harmless Clause. Worst case States will receive 99% of their current funding."},
+    {id:3, desc:"NA"},
+    {id:4, desc:"Current OAA funding creates a floor of 2006 level expenditures for States losing 60+ population."}
+
+]
+
+
 var mealSvg = d3.select("#mealContainer").append("svg")
     .attr("width", (projWidth + 125) + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -146,7 +155,21 @@ function drawMealChart(stateId, scenarioId){
             .style("text-anchor", "end")
             .text(function(d) { return d; });
 
+
+
     });
+
+    var description = d3.select('#descriptionContainer');
+    description.selectAll(".desc")
+        .data(scenarios)
+        .enter()
+        .append("h3")
+        .attr("class", "desc")
+        .text(function(d){
+            if(d.id == scenarioId){
+                return d.desc;
+            }
+        }).style("text-align","center")
 
 }
 
@@ -194,6 +217,13 @@ function updateMealChart(stateId, scenarioId){
 
 
     });
+
+    d3.selectAll(".desc")
+        .text(function(d){
+            if(d.id == scenarioId){
+                return d.desc;
+            }
+        })
 }
 
 drawMealChart(state, scenario);
