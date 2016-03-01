@@ -44,6 +44,8 @@ d3.json("us.json", function(error, us) {
             updateBarChart(d.id);
 
             updateProjChart(d.id, scenario);
+
+            updateMealChart(d.id, scenario);
         });
 
 

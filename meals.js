@@ -1,40 +1,53 @@
 /**
- * Created by jmartinez on 2/26/2016.
+ * Created by jmartinez on 2/29/2016.
  */
-var scenario = "1";
-var projWidth = 375;
+var mealCategories = [
+    {name:'Congregate Meals', cost:7.14},
+    {name:'Home Meals', cost:6.59}
+];
 
-var xproj = d3.scale.ordinal()
-    .rangeRoundBands([0, projWidth], 0.15);
-
-var categories = ['Congregate Meals','Home Meals','NFCSP','Supportive Services', 'Preventive Services'];
-
-var yproj = d3.scale.linear()
-    .rangeRound([height, 0]);
-
-var color_proj = d3.scale.ordinal()
-    .range(["#4490AF", "#E95D22", "#739B4E", "#9E61B0", "#A22E3B"]);
-
-var xAxisProj = d3.svg.axis()
-    .scale(xproj)
-    .orient("bottom");
-
-var yAxisProj = d3.svg.axis()
-    .scale(yproj)
-    .orient("left")
-    .tickFormat(d3.format(".2s"));
-
-var projSvg = d3.select("#projContainer").append("svg")
+var mealSvg = d3.select("#mealContainer").append("svg")
     .attr("width", (projWidth + 125) + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var currencyFormat = d3.format('$,');
 
-function drawProjChart(stateId, scenarioId){
+var ymeal = d3.scale.linear()
+    .range([height, 0]);
 
-    d3.csv("oaaprojections.csv", function(error, data){
+
+var yAxisMeal = d3.svg.axis()
+    .scale(ymeal)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+var xAxisMeal = d3.svg.axis()
+    .scale(xproj)
+    .orient("center");
+
+var buildOut = function(dataSeriesCount) {
+    var currentXOffsets = [];
+    var current_xIndex = 0;
+    return function(d, y0, y){
+        if(current_xIndex++ % dataSeriesCount === 0){
+            currentXOffsets = [0, 0];
+        }
+        if(y >= 0) {
+            d.y0 = currentXOffsets[1];
+            d.y = y;
+            currentXOffsets[1] += y;
+        } else {
+            d.y0 = currentXOffsets[0] + y;
+            d.y = -y;
+            currentXOffsets[0] += y;
+        }
+    }
+};
+
+
+function drawMealChart(stateId, scenarioId){
+    d3.csv("oaaprojections_diff.csv", function(error, data){
         var nest = d3.nest()
             .key(function(d){return d.id;})
             .entries(data);
@@ -48,28 +61,27 @@ function drawProjChart(stateId, scenarioId){
         });
         //var selectedData = _.find(selectedState, function(x){return })
 
-        var layers = d3.layout.stack()(categories.map(function(c){
+        var layers = d3.layout.stack().out(buildOut(2))(mealCategories.map(function(c){
             return selectedData.map(function(d){
-                return {x: d.Year, y: parseInt(d[c]), category: c, scenario: d.scenario};
+                return {x: d.Year, y: parseInt(d[c.name] / c.cost), category: c, scenario: d.scenario};
             });
         }));
 
-        projSvg.append("text")
+        mealSvg.append("text")
             .attr("class", "barChartTitle")
             .attr("x", (projWidth / 2))
             .attr("y", 10)
             .attr("text-anchor", "middle")
             .style("font-size", "16px")
             .text(function(d){
-                console.log(d);
-                return(selectedData[0].State + ": " + selectedData[0].scenario)
+                return(selectedData[0].State + " Meals: "  + selectedData[0].scenario)
             });
 
 
         xproj.domain(layers[0].map(function(d){return d.x}));
-        yproj.domain([0, 135000000]);
+        ymeal.domain([-400000, 625000]);
 
-        var layer = projSvg.selectAll(".layer")
+        var layer = mealSvg.selectAll(".layer")
             .data(layers)
             .enter()
             .append("g")
@@ -81,8 +93,8 @@ function drawProjChart(stateId, scenarioId){
             .enter()
             .append("rect")
             .attr("x", function(d){return xproj(d.x);})
-            .attr("y", function(d){return yproj(d.y + d.y0);})
-            .attr("height", function(d){return yproj(d.y0) - yproj(d.y + d.y0)})
+            .attr("y", function(d){return ymeal(d.y + d.y0);})
+            .attr("height", function(d){return ymeal(d.y0) - ymeal(d.y + d.y0)})
             .attr("width", xproj.rangeBand() - 1)
             .on("mouseover", function(d){
                 d3.select(this).classed("hoverBar", true)
@@ -90,19 +102,19 @@ function drawProjChart(stateId, scenarioId){
                 d3.select(this).classed("hoverBar", false);
             }).append("title")
             .attr("class", "grpTitle")
-            .text(function(d){return d.category + ": " + currencyFormat(d.y);});
+            .text(function(d){return d.category.name + ": " + d.y;});
 
 
-        projSvg.append("g")
+        mealSvg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
-            .call(xAxisProj);
+            .call(xAxisMeal);
 
-        projSvg.append("g")
+        mealSvg.append("g")
             .attr("class", "y axis")
-            .call(yAxisProj);
+            .call(yAxisMeal);
 
-        var legend = projSvg.selectAll(".legend")
+        var legend = mealSvg.selectAll(".legend")
             .data(categories)
             .enter().append("g")
             .attr("class", "legend")
@@ -123,10 +135,11 @@ function drawProjChart(stateId, scenarioId){
             .text(function(d) { return d; });
 
     });
+
 }
 
-function updateProjChart(stateId, scenarioId){
-    d3.csv("oaaprojections.csv", function(error, data){
+function updateMealChart(stateId, scenarioId){
+    d3.csv("oaaprojections_diff.csv", function(error, data){
         var nest = d3.nest()
             .key(function(d){return d.id;})
             .entries(data);
@@ -139,22 +152,22 @@ function updateProjChart(stateId, scenarioId){
             }
         });
 
-        var layers = d3.layout.stack()(categories.map(function(c){
+        var layers = d3.layout.stack().out(buildOut(2))(mealCategories.map(function(c){
             return selectedData.map(function(d){
-                return {x: d.Year, y: parseInt(d[c]), category: c, scenario: d.scenario};
+                return {x: d.Year, y: parseInt(d[c.name] / c.cost), category: c, scenario: d.scenario};
             });
         }));
 
-        projSvg.select(".barChartTitle")
+        mealSvg.select(".barChartTitle")
             .text(function(d){
                 console.log(d);
                 return(selectedData[0].State + ": " + selectedData[0].scenario)
             });
         //
         xproj.domain(layers[0].map(function(d){return d.x}));
-        yproj.domain([0, 135000000]);
+        ymeal.domain([-400000, 625000]);
 
-        var layer = projSvg.selectAll(".layer")
+        var layer = mealSvg.selectAll(".layer")
             .data(layers);
 
         layer.selectAll("rect")
@@ -162,25 +175,14 @@ function updateProjChart(stateId, scenarioId){
             .transition()
             .duration(500)
             .attr("x", function(d){return xproj(d.x);})
-            .attr("y", function(d){return yproj(d.y + d.y0);})
-            .attr("height", function(d){return yproj(d.y0) - yproj(d.y + d.y0)})
+            .attr("y", function(d){return ymeal(d.y + d.y0);})
+            .attr("height", function(d){return ymeal(d.y0) - ymeal(d.y + d.y0)})
             .attr("width", xproj.rangeBand() - 1)
-            .select("title").text(function(d){return d.category + ": " + currencyFormat(d.y);});
+            .select("title").text(function(d){return d.category.name + ": " + d.y;});
 
 
 
     });
 }
 
-drawProjChart(state, scenario);
-
-var links = document.getElementsByClassName("scenarioLink");
-for(var i=0; i<links.length; i++){
-    var link = links[i];
-    link.onclick = function(e){
-        e.preventDefault();
-        var scenarioId = e.target.id.split('-')[1];
-        updateProjChart(state, scenarioId);
-        updateMealChart(state, scenarioId);
-    }
-}
+drawMealChart(state, scenario);
