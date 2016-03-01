@@ -26,6 +26,12 @@ var xAxisMeal = d3.svg.axis()
     .scale(xproj)
     .orient("center");
 
+var color_meal = d3.scale.ordinal()
+    .range(["#4490AF", "#E95D22"]);
+
+var color_legend_meal = d3.scale.ordinal()
+    .range(["#4490AF", "#E95D22"]);
+
 var buildOut = function(dataSeriesCount) {
     var currentXOffsets = [];
     var current_xIndex = 0;
@@ -86,7 +92,7 @@ function drawMealChart(stateId, scenarioId){
             .enter()
             .append("g")
             .attr("class", "layer")
-            .style("fill", function(d,i){return color_proj(i)});
+            .style("fill", function(d,i){return color_meal(i)});
 
         layer.selectAll("rect")
             .data(function(d){return d;})
@@ -115,7 +121,7 @@ function drawMealChart(stateId, scenarioId){
             .call(yAxisMeal);
 
         var legend = mealSvg.selectAll(".legend")
-            .data(categories)
+            .data(mealCategories.map(function(x){return x.name;}))
             .enter().append("g")
             .attr("class", "legend")
             .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -125,7 +131,7 @@ function drawMealChart(stateId, scenarioId){
             .attr("y", 91)
             .attr("width", 18)
             .attr("height", 18)
-            .style("fill", color_proj);
+            .style("fill", color_legend_meal);
 
         legend.append("text")
             .attr("x", projWidth + 124)
