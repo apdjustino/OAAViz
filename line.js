@@ -30,6 +30,18 @@ var line = d3.svg.line()
     .x(function(d) { return x(d.key); })
     .y(function(d) { return y(d.values[0]['pop60']); });
 
+
+var oaaProjLine = d3.svg.line()
+    .x(function(d){return x(d.Year)})
+    .y(function(d){return y(d["Total Title III"])});
+
+var popProjLine = d3.svg.line()
+    .x(function(d){return x(d.Year)})
+    .y(function(d){return y(d["pop60"])});
+
+
+
+
 var fundingLine = d3.svg.line()
     .x(function(d){return x(d.key)})
     .y(function(d){return y(d.values[0]['Total Title III'])});
@@ -38,6 +50,7 @@ var lineSvg = d3.select("#lineContainer").append("svg")
     .attr("width", lineWidth + margin.left + margin.right)
     .attr("height", lineHeight + margin.top + margin.bottom)
     .append("g")
+    .attr("class","lineSvgGrp")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
@@ -53,9 +66,9 @@ function drawLineChart(stateId){
 
 
         var dataToDraw = _.find(nest, function(x){return x.key == stateId});
-        x.domain(d3.extent(dataToDraw.values, function(d){return d.key}));
+        x.domain([2007, 2019]);
         //x.domain([d3.time.format("%d-%b-%y").parse('01-Jan-04'), d3.time.format("%d-%b-%y").parse('01-Jan-14')]);
-        y.domain([0, 0.55]);
+        y.domain([0, 1]);
 
         lineSvg.append("text")
             .attr("class", "lineChartTitle")
@@ -105,7 +118,7 @@ function drawLineChart(stateId){
             .on("mouseout", function(d){d3.select(this).classed("mouseOverCircle",false)})
             .on("click", function(d){updatePieChart(d.values[0].id, d.key)})
             .append("title")
-            .text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
+            .text(function(d){return yFormat(d.values[0]['pop60']);});
 
         lineSvg.selectAll(".circleFunding")
             .data(dataToDraw.values)
@@ -120,7 +133,7 @@ function drawLineChart(stateId){
             .on("mouseout", function(d){d3.select(this).classed("mouseOverCircle",false)})
             .on("click", function(d){updatePieChart(d.values[0].id, d.key)})
             .append("title")
-            .text(function(d){return yFormat(d.values[0]['pct_chng_title3']);});
+            .text(function(d){console.log(d); return yFormat(d.values[0]['Total Title III']);});
 
         var legend = lineSvg.append("g")
             .attr("transform", "translate(150,410)");
@@ -156,6 +169,113 @@ function drawLineChart(stateId){
 
     });
 
+
+}
+
+
+function drawProjLine(stateId, scenarioId){
+
+    d3.csv('oaaprojections_pct.csv', function(error,data){
+        var nest = d3.nest()
+            .key(function(d){return d.id;})
+            .entries(data);
+
+        var selectedState = _.find(nest, function(x){return x.key == stateId});
+        var selectedData = [];
+        selectedState.values.forEach(function(cv){
+            if(cv.scenarioId == scenarioId){
+                selectedData.push(cv);
+            }
+        });
+
+        var svg = d3.select(".lineSvgGrp");
+
+        svg.append("path")
+            .datum(selectedData)
+            .attr("class", "oaaProjLine")
+            .attr("d", oaaProjLine);
+
+        svg.append("path")
+            .datum(selectedData)
+            .attr("class", "oaaPopLine")
+            .attr("d", popProjLine);
+
+        lineSvg.selectAll(".circleFundingProj")
+            .data(selectedData)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d){return x(d.Year);})
+            .attr("cy", function(d){return y(d['Total Title III']);})
+            .attr("r", 5)
+            .attr("class", function(d){ return "circle" + d.Year + " circleFundingProj"})
+            .style("fill", "steelblue")
+            .on("mouseover", function(d){d3.select(this).classed("mouseOverCircle",true)})
+            .on("mouseout", function(d){d3.select(this).classed("mouseOverCircle",false)})
+            .append("title")
+            .text(function(d){console.log(d); return yFormat(d['Total Title III']);});
+
+        lineSvg.selectAll(".circlePopProj")
+            .data(selectedData)
+            .enter()
+            .append("circle")
+            .attr("cx", function(d){return x(d.Year);})
+            .attr("cy", function(d){return y(d['pop60']);})
+            .attr("r", 5)
+            .attr("class", function(d){ return "circle" + d.Year + " circlePopProj"})
+            .style("fill", "chocolate")
+            .on("mouseover", function(d){d3.select(this).classed("mouseOverCircle",true)})
+            .on("mouseout", function(d){d3.select(this).classed("mouseOverCircle",false)})
+            .append("title")
+            .text(function(d){console.log(d); return yFormat(d['pop60']);});
+
+
+    });
+
+
+}
+
+function updateProjLine(stateId, scenarioId){
+
+    d3.csv('oaaprojections_pct.csv', function(error,data){
+        var nest = d3.nest()
+            .key(function(d){return d.id;})
+            .entries(data);
+
+        var selectedState = _.find(nest, function(x){return x.key == stateId});
+        var selectedData = [];
+        selectedState.values.forEach(function(cv){
+            if(cv.scenarioId == scenarioId){
+                selectedData.push(cv);
+            }
+        });
+
+        var oaaFundingProj = d3.selectAll('.oaaProjLine')
+            .datum(selectedData);
+
+        var oaaPopProj = d3.selectAll('.oaaPopLine')
+            .datum(selectedData);
+
+        var oaaFundingCir = d3.selectAll('.circleFundingProj')
+            .data(selectedData)
+            .transition()
+            .duration(500)
+            .attr("cy", function(d){return y(d['Total Title III']);})
+            .text(function(d){console.log(d); return yFormat(d['Total Title III']);});
+
+        var oaaPopCir = d3.selectAll('.circlePopProj')
+            .data(selectedData)
+            .transition()
+            .duration(500)
+            .attr("cy", function(d){return y(d['pop60']);})
+            .text(function(d){console.log(d); return yFormat(d['pop60']);});
+
+
+        oaaFundingProj.transition().duration(500).attr("d", oaaProjLine);
+        oaaPopProj.transition().duration(500).attr("d", popProjLine);
+
+
+
+    });
 }
 
 function updateLineChart(stateId){
@@ -168,9 +288,9 @@ function updateLineChart(stateId){
 
 
         var dataToDraw = _.find(nest, function(x){return x.key == stateId});
-        x.domain(d3.extent(dataToDraw.values, function(d){return d.key}));
+        x.domain([2007, 2019]);
         //x.domain([d3.time.format("%d-%b-%y").parse('01-Jan-04'), d3.time.format("%d-%b-%y").parse('01-Jan-14')]);
-        y.domain([0, 0.55]);
+        y.domain([0, 1]);
 
         var transition = d3.select('#lineContainer')
             .data(dataToDraw.values);

@@ -54,6 +54,7 @@ function drawMap(stateId){
                 updateProjChart(d.id, scenario);
 
                 updateMealChart(d.id, scenario);
+                updateProjLine(d.id, scenario);
             });
 
 
@@ -65,6 +66,7 @@ function drawMap(stateId){
 
 
         drawLineChart(state);
+        drawProjLine(state, scenario);
     });
 }
 

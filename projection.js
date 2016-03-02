@@ -152,7 +152,6 @@ function updateProjChart(stateId, scenarioId){
 
         projSvg.select(".barChartTitle")
             .text(function(d){
-                console.log(d);
                 return(selectedData[0].State + ": OAA Funding Projection")
             });
         //
@@ -188,6 +187,7 @@ for(var i=0; i<links.length; i++){
         scenario = scenarioId;
         updateProjChart(state, scenarioId);
         updateMealChart(state, scenarioId);
+        updateProjLine(state, scenarioId);
         //updateMap(scenarioId);
     }
 }

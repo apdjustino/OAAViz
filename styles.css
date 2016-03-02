@@ -41,6 +41,13 @@
     stroke-width: 1.5px;
 }
 
+.oaaProjLine{
+    fill:none;
+    stroke:steelblue;
+    stroke-width: 1.5px;
+    stroke-dasharray: 3,3;
+}
+
 #lineContainer{
     position:relative;
     width:70%;
@@ -51,6 +58,13 @@
     fill: none;
     stroke: chocolate;
     stroke-width: 1.5px;
+}
+
+.oaaPopLine {
+    fill: none;
+    stroke: chocolate;
+    stroke-width: 1.5px;
+    stroke-dasharray: 3,3;
 }
 
 .arc text {
