@@ -68,6 +68,53 @@ function drawMap(stateId){
     });
 }
 
+function updateMap(scenarioId){
+    d3.csv('oaaprojections_diff.csv', function(error, data){
+        if(error) throw error;
+
+        var nest = d3.nest()
+            .key(function(d){return d.id;})
+            .entries(data);
+
+        var states = d3.selectAll(".state");
+        states.style("fill", function(d){
+            var selectedState = _.find(nest, function(x){return x.key == d.id});
+            var selectedYear = [];
+            var selectedData = [];
+
+            if(selectedState == undefined){
+                return;
+            }
+            selectedState.values.forEach(function(cv){
+                if(cv.Year == 2019){
+                    selectedYear.push(cv);
+                }
+            });
+
+            selectedYear.forEach(function(cv){
+                if(cv.scenarioId == scenarioId){
+                    selectedData.push(cv);
+                }
+            });
+
+            var output = "";
+            var title3 = parseInt(selectedData[0]["Total Title III"]);
+
+            if(title3 < 0){
+                output = "red";
+            }
+            if(title3 ==0){
+                output = "yellow";
+            }
+            if(title3 > 0){
+                output = "green";
+            }
+            return output;
+
+        });
+
+    })
+}
 
 drawMap(state);
 

@@ -12,7 +12,7 @@ var scenarios = [
     {id:3, desc:"NA"},
     {id:4, desc:"Current OAA funding creates a floor of 2006 level expenditures for States losing 60+ population."}
 
-]
+];
 
 
 var mealSvg = d3.select("#mealContainer").append("svg")

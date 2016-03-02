@@ -188,5 +188,6 @@ for(var i=0; i<links.length; i++){
         scenario = scenarioId;
         updateProjChart(state, scenarioId);
         updateMealChart(state, scenarioId);
+        //updateMap(scenarioId);
     }
 }
